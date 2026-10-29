@@ -32,9 +32,8 @@ pipeline {
         stage('Build & Push') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: env.REGISTRY_CRED_ID, passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
+                    withDockerRegistry(credentialsId: env.REGISTRY_CRED_ID, url: 'https://index.docker.io/v1/') {
                         powershell "docker build -t ${env.DOCKER_HUB_USER}/${env.IMAGE_NAME}:${env.GIT_COMMIT_SHA} ."
-                        powershell "echo \$env:DOCKER_REGISTRY_PWD | docker login -u \$env:DOCKER_REGISTRY_USER --password-stdin"
                         powershell "docker push ${env.DOCKER_HUB_USER}/${env.IMAGE_NAME}:${env.GIT_COMMIT_SHA}"
                     }
                 }
@@ -42,9 +41,11 @@ pipeline {
         }
         stage('Deployment') {
             steps {
-                powershell "sed -i 's|IMAGE_PLACEHOLDER|${env.DOCKER_HUB_USER}/${env.IMAGE_NAME}:${env.GIT_COMMIT_SHA}|g' deployment.yaml"
-                powershell "kubectl apply -f deployment.yaml"
-                powershell "kubectl apply -f service.yaml"
+                powershell '''
+                (Get-Content deployment.yaml) -replace 'IMAGE_PLACEHOLDER', "$env:DOCKER_HUB_USER/$env:IMAGE_NAME:$env:GIT_COMMIT_SHA" | Set-Content deployment.yaml
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+                '''
             }
         }
     }
