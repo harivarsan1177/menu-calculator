@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HUB_USER = 'YOUR_DOCKERHUB_USERNAME'
+        DOCKER_HUB_USER = 'harivarsan1177'
         IMAGE_NAME = 'menu-calculator'
         REGISTRY_CRED_ID = 'docker-hub-credentials'
     }
