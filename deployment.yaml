@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: menu-calculator-deployment
+  labels:
+    app: menu-calculator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: menu-calculator
+  template:
+    metadata:
+      labels:
+        app: menu-calculator
+    spec:
+      containers:
+      - name: calculator-app
+        image: IMAGE_PLACEHOLDER
+        command: ["tail", "-f", "/dev/null"]
