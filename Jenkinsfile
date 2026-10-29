@@ -24,9 +24,8 @@ pipeline {
             steps {
                 powershell '''
                 python -m venv venv
-                .\\venv\\Scripts\\Activate.ps1
-                pip install -r requirements.txt
-                python -m pytest test_app.py -v
+                .\\venv\\Scripts\\pip.exe install -r requirements.txt
+                .\\venv\\Scripts\\python.exe -m pytest test_app.py -v
                 '''
             }
         }
