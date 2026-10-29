@@ -32,7 +32,7 @@ pipeline {
         stage('Build & Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: env.REGISTRY_CRED_ID, url: 'https://index.docker.io/v1/') {
+                    withDockerRegistry(credentialsId: env.REGISTRY_CRED_ID, url: 'https://docker.io') {
                         powershell "docker build -t ${env.DOCKER_HUB_USER}/${env.IMAGE_NAME}:${env.GIT_COMMIT_SHA} ."
                         powershell "docker push ${env.DOCKER_HUB_USER}/${env.IMAGE_NAME}:${env.GIT_COMMIT_SHA}"
                     }
@@ -43,8 +43,9 @@ pipeline {
             steps {
                 powershell '''
                 (Get-Content deployment.yaml) -replace 'IMAGE_PLACEHOLDER', "$env:DOCKER_HUB_USER/$env:IMAGE_NAME:$env:GIT_COMMIT_SHA" | Set-Content deployment.yaml
-                kubectl apply -f deployment.yaml
-                kubectl apply -f service.yaml
+                kubectl apply -f deployment.yaml --validate=false
+                kubectl apply -f service.yaml --validate=false
+                git checkout deployment.yaml
                 '''
             }
         }
